@@ -17,6 +17,8 @@ def health():
     """
     return jsonify({"status": "healthy"}), 200
 
+
+
 #Endpoint: Data Insertion
 @application.route('/events', methods=['POST'])
 def create_event():
@@ -118,8 +120,25 @@ def insert_data_into_db(payload):
     """
     create_db_table()
     # TODO: Implement the database call    
-    
-    raise NotImplementedError("Database insert function not implemented.")
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                insert_sql = """
+                INSERT INTO events (title, description, image_url, date, location) 
+                VALUES (%s, %s, %s, %s, %s)
+                """
+                cursor.execute(insert_sql, (
+                    payload['title'],
+                    payload['description'],
+                    payload['image_url'],
+                    payload['date'],
+                    payload['location']
+                ))
+            connection.commit()
+            logging.info("Events table insertion successful.")
+    except Exception as e:
+        logging.exception("Failed to insert into the table.")
+        raise RuntimeError(f"Table creation failed: {str(e)}")
 
 #Database Function Stub
 def fetch_data_from_db():
@@ -128,8 +147,22 @@ def fetch_data_from_db():
     Implement this function to fetch your data from the database.
     """
     # TODO: Implement the database call
+    create_db_table()
+
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                select_sql = """
+                SELECT * FROM events ORDER BY date ASC
+                """
+                cursor.execute(select_sql)
+                rows = cursor.fetchall()
+                return rows
+    except Exception as e:
+        logging.exception("Failed to insert into the table.")
+        raise RuntimeError(f"Table creation failed: {str(e)}")
     
-    raise NotImplementedError("Database fetch function not implemented.")
+    return []
 
 if __name__ == '__main__':
     application.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
