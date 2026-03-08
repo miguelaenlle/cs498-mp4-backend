@@ -153,7 +153,7 @@ def fetch_data_from_db():
         with get_db_connection() as connection:
             with connection.cursor() as cursor:
                 select_sql = """
-                SELECT * FROM events ORDER BY date ASC
+                SELECT title, description, image_url, date, location FROM events ORDER BY date ASC
                 """
                 cursor.execute(select_sql)
                 rows = cursor.fetchall()
