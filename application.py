@@ -157,7 +157,19 @@ def fetch_data_from_db():
                 """
                 cursor.execute(select_sql)
                 rows = cursor.fetchall()
-                return rows
+
+                all_rows = [
+                    {
+                        'title': row[0],
+                        'description': row[1],
+                        'image_url': row[2],
+                        'date': row[3],
+                        'location': row[4]
+                    }
+                    for row in rows
+                ]
+
+                return all_rows
     except Exception as e:
         logging.exception("Failed to insert into the table.")
         raise RuntimeError(f"Table creation failed: {str(e)}")
